@@ -33,9 +33,34 @@ export class PrismaUsersRepository implements UsersRepository {
         });
         return user;
     }
+    async findManyProfiles() {
+        const users = await prisma.user.findMany({
+            include: {
+                cargo: true,
+                setor: true,
+            },
+            orderBy: {
+                nome: "asc",
+            },
+        });
+        return users;
+    }
     async create(data: Prisma.UserCreateInput) {
         const user = await prisma.user.create({
             data,
+        });
+        return user;
+    }
+    async update(id: number, data: Prisma.UserUpdateInput) {
+        const user = await prisma.user.update({
+            where: {
+                id,
+            },
+            data,
+            include: {
+                cargo: true,
+                setor: true,
+            },
         });
         return user;
     }

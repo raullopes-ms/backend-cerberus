@@ -2,7 +2,9 @@ import { prisma } from "../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import { AssuntosRepository } from "../assuntos-repositories";
 
-
+const assuntoInclude = {
+    setores: { include: { setor: true } },
+} satisfies Prisma.AssuntoInclude;
 
 export class PrismaAssuntosRepository implements AssuntosRepository {
     async findById(id: number) {
@@ -10,6 +12,7 @@ export class PrismaAssuntosRepository implements AssuntosRepository {
             where: {
                 id,
             },
+            include: assuntoInclude,
         });
         return assunto;
     }
@@ -27,21 +30,37 @@ export class PrismaAssuntosRepository implements AssuntosRepository {
             orderBy: {
                 nome: "asc",
             },
+            include: assuntoInclude,
         });
         return assuntos;
     }
-    async create(data: Prisma.AssuntoCreateInput) {
+    async create(data: Prisma.AssuntoCreateInput, setorIds: number[]) {
         const assunto = await prisma.assunto.create({
-            data,
+            data: {
+                ...data,
+                setores: {
+                    create: setorIds.map((setorId) => ({ setor: { connect: { id: setorId } } })),
+                },
+            },
+            include: assuntoInclude,
         });
         return assunto;
     }
-    async update(id: number, data: Prisma.AssuntoUpdateInput) {
+    async update(id: number, data: Prisma.AssuntoUpdateInput, setorIds?: number[]) {
         const assunto = await prisma.assunto.update({
             where: {
                 id,
             },
-            data,
+            data: {
+                ...data,
+                ...(setorIds !== undefined && {
+                    setores: {
+                        deleteMany: {},
+                        create: setorIds.map((setorId) => ({ setor: { connect: { id: setorId } } })),
+                    },
+                }),
+            },
+            include: assuntoInclude,
         });
         return assunto;
     }

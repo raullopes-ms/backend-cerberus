@@ -31,6 +31,10 @@ import { getAssunto } from "../controllers/get-assunto-controller";
 import { updateAssunto } from "../controllers/update-assunto-controller";
 import { deleteAssunto } from "../controllers/delete-assunto-controller";
 import { me } from "../controllers/me-controller";
+import { adminMe } from "../controllers/admin-me-controller";
+import { listUsers } from "../controllers/list-users-controller";
+import { getUser } from "../controllers/get-user-controller";
+import { updateUser } from "../controllers/update-user-controller";
 
 
 
@@ -44,6 +48,18 @@ export async function appRoutes(app: FastifyInstance) {
         config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
     }, authenticateAdmin);
     app.post("/panel/admin/register", { onRequest: [verifyJwt, verifyAdmin] }, register);
+
+    /* Perfil do administrador autenticado. O `/me` de usuário recusa token de
+       admin, então o painel precisa da sua própria rota. */
+    app.get("/panel/admin/me", { onRequest: [verifyJwt, verifyAdmin] }, adminMe);
+
+    /* Rotas de administrador - Usuários.
+       Não há exclusão: `usuarios` é referenciado por `chamados` e `historicos`,
+       então desligar um acesso é mudar `status` para INATIVO. */
+    app.post("/panel/admin/usuarios", { onRequest: [verifyJwt, verifyAdmin] }, register);
+    app.get("/panel/admin/usuarios", { onRequest: [verifyJwt, verifyAdmin] }, listUsers);
+    app.get("/panel/admin/usuarios/:id", { onRequest: [verifyJwt, verifyAdmin] }, getUser);
+    app.put("/panel/admin/usuarios/:id", { onRequest: [verifyJwt, verifyAdmin] }, updateUser);
 
     /* Rotas de administrador - Setores */
     app.post("/panel/admin/setores", { onRequest: [verifyJwt, verifyAdmin] }, createSetor);

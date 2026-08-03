@@ -1,8 +1,7 @@
-import { AssuntosRepository } from "../repositories/assuntos-repositories";
-import { Assunto } from "../../generated/prisma/client";
+import { AssuntosRepository, AssuntoWithSetores } from "../repositories/assuntos-repositories";
 
 interface ListAssuntosUseCaseResponse {
-    assuntos: Assunto[];
+    assuntos: AssuntoWithSetores[];
 }
 export class ListAssuntosUseCase {
     constructor(private assuntosRepository: AssuntosRepository) {}

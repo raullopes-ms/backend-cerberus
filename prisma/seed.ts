@@ -2,7 +2,7 @@ import "dotenv/config";
 import { hash } from "bcryptjs";
 import { prisma } from "../src/lib/prisma";
 import { PrismaAdminsRepository } from "../src/repositories/prisma/prisma-admins-repositories";
-
+/*
 const setores = [
   "ADMINISTRATIVO",
   "FROTA",
@@ -35,7 +35,7 @@ async function seedSetores() {
 
   console.log(`${result.count} setores processados.`);
 }
-
+*/
 async function seedAdmin() {
   const email = process.env.ADMIN_EMAIL;
   const senha = process.env.ADMIN_PASSWORD;
@@ -65,7 +65,7 @@ async function seedAdmin() {
 }
 
 async function main() {
-  await seedSetores();
+  //await seedSetores();
   await seedAdmin();
 }
 

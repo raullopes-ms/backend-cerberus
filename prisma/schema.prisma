@@ -31,8 +31,9 @@ model Setor {
   createdAt DateTime @default(now())
   users     User[]
 
-  chamadosOrigem  Chamado[] @relation("ChamadoSetorOrigem")
-  chamadosDestino Chamado[] @relation("ChamadoSetorDestino")
+  chamadosOrigem  Chamado[]      @relation("ChamadoSetorOrigem")
+  chamadosDestino Chamado[]      @relation("ChamadoSetorDestino")
+  assuntos        AssuntoSetor[]
 
   @@map("setores")
 }
@@ -48,13 +49,27 @@ model Cargo {
 }
 
 model Assunto {
-  id        Int       @id @default(autoincrement())
-  nome      String    @unique
-  ativo     Boolean   @default(true)
-  createdAt DateTime  @default(now())
+  id        Int            @id @default(autoincrement())
+  nome      String         @unique
+  ativo     Boolean        @default(true)
+  createdAt DateTime       @default(now())
   chamados  Chamado[]
+  setores   AssuntoSetor[]
 
   @@map("assuntos")
+}
+
+model AssuntoSetor {
+  id        Int      @id @default(autoincrement())
+  assuntoId Int
+  setorId   Int
+  createdAt DateTime @default(now())
+
+  assunto Assunto @relation(fields: [assuntoId], references: [id], onDelete: Cascade)
+  setor   Setor   @relation(fields: [setorId], references: [id], onDelete: Cascade)
+
+  @@unique([assuntoId, setorId])
+  @@map("assuntos_setores")
 }
 
 model User {

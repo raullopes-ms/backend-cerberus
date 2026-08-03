@@ -10,5 +10,7 @@ export interface UsersRepository {
     findById(id: number): Promise<User | null>;
     findProfileById(id: number): Promise<UserProfile | null>;
     findByEmail(email: string): Promise<User | null>;
+    findManyProfiles(): Promise<UserProfile[]>;
     create(data: Prisma.UserCreateInput): Promise<User>;
+    update(id: number, data: Prisma.UserUpdateInput): Promise<UserProfile>;
 }

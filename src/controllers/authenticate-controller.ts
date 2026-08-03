@@ -12,6 +12,9 @@ export async function authenticate(request: FastifyRequest, reply: FastifyReply)
     try {
         const authenticateUseCase = makeAuthenticateUseCase();
         const { user } = await authenticateUseCase.execute({ email, senha });
+        if(user.status !== "ATIVO") {
+            return reply.status(400).send({ message: "Usuário inativo" });
+        }
         const token = await reply.jwtSign({
             sub: user.id.toString(),
             setorId: user.setorId.toString()
