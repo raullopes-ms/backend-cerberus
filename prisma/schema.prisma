@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum StatusChamado {
+  ABERTO
+  EM_ANDAMENTO
+  RECUSADO
+  FECHADO
+}
+
+enum StatusUsuario {
+  ATIVO
+  INATIVO
+}
+
+model Setor {
+  id        Int      @id @default(autoincrement())
+  nome      String   @unique
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  users     User[]
+
+  chamadosOrigem  Chamado[] @relation("ChamadoSetorOrigem")
+  chamadosDestino Chamado[] @relation("ChamadoSetorDestino")
+
+  @@map("setores")
+}
+
+model Cargo {
+  id        Int      @id @default(autoincrement())
+  nome      String   @unique
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  users     User[]
+
+  @@map("cargos")
+}
+
+model Assunto {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique
+  ativo     Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  chamados  Chamado[]
+
+  @@map("assuntos")
+}
+
+model User {
+  id        Int           @id @default(autoincrement())
+  nome      String
+  email     String        @unique
+  senhaHash String
+  status    StatusUsuario @default(ATIVO)
+  cargoId   Int
+  setorId   Int
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  cargo     Cargo         @relation(fields: [cargoId], references: [id])
+  setor     Setor         @relation(fields: [setorId], references: [id])
+
+  chamadosCriados   Chamado[]   @relation("ChamadoCriadoPor")
+  chamadosAtendidos Chamado[]   @relation("ChamadoAtendidoPor")
+  historicos        Historico[]
+
+  @@map("usuarios")
+}
+
+model Chamado {
+  id             Int           @id @default(autoincrement())
+  titulo         String
+  descricao      String
+  assuntoId      Int
+  setorOrigemId  Int
+  setorDestinoId Int
+  criadoPorId    Int
+  atendidoPorId  Int?
+  status         StatusChamado @default(ABERTO)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  assunto      Assunto     @relation(fields: [assuntoId], references: [id])
+  setorOrigem  Setor       @relation("ChamadoSetorOrigem", fields: [setorOrigemId], references: [id])
+  setorDestino Setor       @relation("ChamadoSetorDestino", fields: [setorDestinoId], references: [id])
+  criadoPor    User        @relation("ChamadoCriadoPor", fields: [criadoPorId], references: [id])
+  atendidoPor  User?       @relation("ChamadoAtendidoPor", fields: [atendidoPorId], references: [id])
+  historicos   Historico[]
+
+  @@map("chamados")
+}
+
+model Historico {
+  id        Int      @id @default(autoincrement())
+  descricao String
+  chamadoId Int
+  usuarioId Int
+  createdAt DateTime @default(now())
+
+  chamado Chamado @relation(fields: [chamadoId], references: [id])
+  usuario User    @relation(fields: [usuarioId], references: [id])
+
+  @@map("historicos")
+}
+
+model Admin {
+  id        Int           @id @default(autoincrement())
+  nome      String
+  email     String        @unique
+  senhaHash String
+  status    StatusUsuario @default(ATIVO)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("admins")
+}
